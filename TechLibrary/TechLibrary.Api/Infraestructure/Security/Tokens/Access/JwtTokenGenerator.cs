@@ -1,5 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using TechLibrary.Api.Domain.Entities;
 
@@ -9,9 +10,15 @@ public class JwtTokenGenerator
 {
 	public string Generate(User user)
 	{
+		var claims = new List<Claim>()
+		{
+			new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString())
+		};
+		
 		var tokenDescriptor = new SecurityTokenDescriptor
 		{
 			Expires = DateTime.UtcNow.AddMinutes(60),
+			Subject = new ClaimsIdentity(),
 			SigningCredentials = new SigningCredentials(SecurityKey(), SecurityAlgorithms.HmacSha256Signature)
 		};
 
