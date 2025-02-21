@@ -1,0 +1,20 @@
+# .NET build folders
+bin/
+obj/
+.vs/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows system files
+Thumbs.db
+Desktop.ini
