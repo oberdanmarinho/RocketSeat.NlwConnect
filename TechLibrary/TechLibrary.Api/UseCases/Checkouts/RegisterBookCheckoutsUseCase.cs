@@ -7,19 +7,18 @@ namespace TechLibrary.Api.UseCases.Checkouts;
 public class RegisterBookCheckoutsUseCase
 {
 	private const int MAX_LOAN_DAYS = 7;
-
+	private readonly TechLibraryDbContext _dbContext;
 	private readonly LoggedUseService _loggedUse;
 
-	public RegisterBookCheckoutsUseCase(LoggedUseService loggedUse)
+	public RegisterBookCheckoutsUseCase(LoggedUseService loggedUse, TechLibraryDbContext dbContext)
 	{
 		_loggedUse = loggedUse;
+		_dbContext = dbContext;
 	}
 
 	public void Execute(Guid bookId)
 	{
-		var dbContext = new TechLibraryDbContext();
-
-		Validate(dbContext, bookId);
+		Validate(bookId);
 
 		var user = _loggedUse.User();
 
@@ -29,19 +28,18 @@ public class RegisterBookCheckoutsUseCase
 			BookId = bookId,
 			ExpectedReturnDate = DateTime.UtcNow.AddDays(MAX_LOAN_DAYS)
 		};
-
-		dbContext.Checkouts.Add(entity);
-
-		dbContext.SaveChanges();
+		
+		_dbContext.Checkouts.Add(entity);
+		_dbContext.SaveChanges();
 	}
 
-	private void Validate(TechLibraryDbContext dbContext, Guid bookId)
+	private void Validate(Guid bookId)
 	{
-		var book = dbContext.Books.FirstOrDefault(book => book.Id == bookId);
+		var book = _dbContext.Books.FirstOrDefault(book => book.Id == bookId);
 		if (book is null)
 			throw new NotFoundException("Livro não encontrado.");
 
-		var amoutBooksNotRetorned = dbContext
+		var amoutBooksNotRetorned = _dbContext
 			.Checkouts
 			.Count(checkout => checkout.BookId == bookId && checkout.ReturnDate == null);
 
